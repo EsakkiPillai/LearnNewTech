@@ -1,0 +1,41 @@
+#############################################################################################################################################
+# Program ID       : Scala Contents
+#
+# Created By Esak
+# Created On 17-OCT-17
+# Property File For Changing Name for Type B Files
+#  Date          Amended By                    Changes/Remarks
+# ========   ================           ============================
+# 18 Oct 2017  Esakki Thangappa Pillai      Remove Duplicate Properties
+###############################################################################################################################################
+Lesson 1 
+        1.a) Prepare Development Env , 
+        1.b)Scala WorkSheet ,Values Varaibales  
+        1.c) Functions Methods Scala Docs 
+
+Lesson 2
+  Understand Conditional And Block Experssion 
+            2.a) if Statemnt And Unit, Data Type- Any , Value of Block 
+            2.b) While Loop and foreach And For Compression  for(i <- 1 to n ) Works with Any Collection for( c <- 'HELLO') 
+                if Statements in For Loop  Collecting Results 
+            2.c) Functions 
+            2.d) Named And Default Arguments ,, Varags  :_* Means Consider this as Sequence of Something so sum( 1 to 10 :_*)
+
+Lesson 3 Arrays Maps Tuples 
+          3.a)
+        
+Lesson 4
+Lesson 5
+Lesson 6
+Lesson 7
+
+
+Functions Wont Operate On Objects ,  def abs(x:Double)= if(x>0) x else -x here return type is infered how is that basically x is double and expressions returns a Double 
+Recursive Function should declare the Return Value Type  
+= equals Sign in Functions
+
+Class Functions 
+1) Box Function 
+2) Factorial Function   Normal Way , Recursive Way 
+3) Decorative Function 
+4) Sum Function 

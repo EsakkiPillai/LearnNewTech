@@ -39,3 +39,70 @@ Class Functions
 2) Factorial Function   Normal Way , Recursive Way 
 3) Decorative Function 
 4) Sum Function 
+
+
+
+
+
+
+Variables And Types 
+String Interpolation 
+Escape Characters
+Type Inference
+IF ELSE how to use a simple if , if else statement and how to asign the if else results to a variable 
+For Loop - 
+	use for Comprehension to loop from 1 to 5 , 1 less than 5 , use if statemnets in for loop 
+	iterate a List 
+	Create and use for compreshension for looping 2 dimensional Arrays 
+Range 
+	Create Inclusive Range Of Integers 
+	Create a Range of Integers Which excludes the Upper bound 
+	Create a Range With with Different Increment 
+	Create a Range from a - z
+	Convert our Ranges into set List seq 
+While DoWhile
+PatternMatching
+	use pattern Matching and Return the Results to a Variable 
+	use pattern Matching with Wild Character and two or More Items on the same Condition 
+	use pattern Matching by type 
+	use pattern Matching with If clauses
+	
+https://kerflyn.wordpress.com/2011/02/14/playing-with-scalas-pattern-matching/
+
+Tuples
+	create a Tuple and access its values
+	use pattern Matching in Tuples
+
+Option 
+	Use Option and None and Some
+
+Class And Type Hierarchy
+
+Functions 
+		Intro
+		Functions With Parameters  
+			create a Function Called "CalculateDonutCost" which is having the Following Parameter DonutName quantity  where one Donut is 2.50
+			Modify the Above Function and add default Parameter for Coupon Code.And Call The Function.
+		Functions with Option Return Type 
+			Create Function "dailyCouponCode" and It should Return Option[String]
+			Call the Above Function USing Pattern Matching 
+			ReCreate The CalculateDonutCost Function With CouponCode Paramater
+		Functions With Implicit Parameters 
+			
+		Implicit Parameter
+		Typed Functions 
+		Polymorphic Functions with Generic Return Type 
+		Variable Argument Function
+		Functions AS Symbols
+		Function Currying With Parameter Groups 
+		Higher Order Functions
+		Higher Order Functions call BY Name 
+		Higher Order Functions call Back Parameter
+		Function Using val 
+		Function Composition Using And Then 
+		Function Composition Using Compose
+		Tail Recursive Functions - @annoatation 
+		Tail Recursive Functions - TailCalls._
+		Trampoline Tail REcursive Functions 
+		Partial Function Using Trait 
+		Nested Function 

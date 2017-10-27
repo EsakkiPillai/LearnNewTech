@@ -1,0 +1,1557 @@
+Apache Spark
+
+
+	Download the Apace Spark 1.6.3 and extract the File and add the Spark_HOME to the environment Variable (refer the u video for this )
+	
+	Spark has 2 folders bin - wich has all the executable for starting the spark we only focus on spark_shell
+	
+when ever we open the shell it will create the SparkCotext as sc sqlContext as sqlContext
+
+for certification we have to use cluster so always be aware in what modeu have start the sparkcluster
+
+PS C:\spark> spark-shell
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 1.6.3
+      /_/
+
+Using Scala version 2.10.5 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_131)
+Type in expressions to have them evaluated.
+Type :help for more information.
+Spark context available as sc.
+SQL context available as sqlContext.
+
+scala> sc
+res0: org.apache.spark.SparkContext = org.apache.spark.SparkContext@4468fda8
+
+if we press the tab it will show  all the possible solutions/metthods 
+
+scala> sql
+sql          sqlContext
+
+scala> sqlContext
+res1: org.apache.spark.sql.SQLContext = org.apache.spark.sql.hive.HiveContext@348b26e0
+
+scala>
+
+
+to check whether spark is runing local or not 
+
+scala> sc.getConf.getAll.foreach(println)
+(spark.driver.host,192.168.119.1)
+(spark.app.name,Spark shell)
+(spark.externalBlockStore.folderName,spark-f7a10f6a-f97b-46ea-bc98-4948ccac8fa8)
+(spark.driver.port,59974)
+(spark.jars,)
+(spark.master,local[*])
+(spark.executor.id,driver)
+(spark.submit.deployMode,client)
+(spark.app.id,local-1501597121031)
+(spark.repl.class.uri,http://192.168.119.1:59945)
+
+
+scala> sc.getConf.get("spark.master")
+res4: String = local[*]
+
+
+in the Above line  spark.master was set to  local[*]	
+
+
+to run it in yarnmode
+=======================
+
+>>sprak-shell --master yarn  it will launch in yarn mode 
+
+>>spark-shell --master yarn  --conf spark.ui.port=45367  which will launch a spark shell in the labs
+
+Architecture of Spark
+----------------------
+Spark is distributed computing engine
+It works on many file systems – typically distributed ones
+It uses HDFS APIs for reading files from file system
+Works seamlessly on HDFS, AWS S3 and Azure Blob etc
+
+where will be all the memory spark is getting ?
+
+to track the spark history gw01.itversity.com:45634 it will navigate to http://rm01.itversity.com:8088/proxy/application_1500459105861_5464/ 
+   
+   We are using yarn, So Application masrer will be used as cluster manager 
+						worker node are slave node 
+
+		resource manager is running in rm01.itversity.com
+		Workder node means node manager 
+		executor will be running in any of the node manager   2 executors are running by default
+		executor is a JVM (memory and JVM) 
+		executor within the worker node will be created once we sumbit the spark job 
+		worker nodes are simple server which may be data node and node manager , executors will be running inside that context
+
+
+Different Modules in Spark
+
+			spark core
+			spark sql
+			spark streaming
+			Mlib
+
+			
+File Systems
+
+[esakkipillai@gw01 ~]$ hdfs fsck /public/randomtextwriter/part-m-00000 -blocks -locations
+Connecting to namenode via http://nn01.itversity.com:50070/fsck?ugi=esakkipillai&blocks=1&locations=1&path=%2Fpublic%2Frandomtextwriter%2Fpart-m-00000
+FSCK started by esakkipillai (auth:SIMPLE) from /172.16.1.100 for path /public/randomtextwriter/part-m-00000 at Tue Aug 01 12:12:07 EDT 2017
+.Status: HEALTHY
+ Total size:    1102230331 B
+ Total dirs:    0
+ Total files:   1
+ Total symlinks:                0
+ Total blocks (validated):      9 (avg. block size 122470036 B)
+ Minimally replicated blocks:   9 (100.0 %)
+ Over-replicated blocks:        0 (0.0 %)
+ Under-replicated blocks:       0 (0.0 %)
+ Mis-replicated blocks:         0 (0.0 %)
+ Default replication factor:    3
+ Average block replication:     3.0
+ Corrupt blocks:                0
+ Missing replicas:              0 (0.0 %)
+ Number of data-nodes:          5
+ Number of racks:               1
+FSCK ended at Tue Aug 01 12:12:07 EDT 2017 in 0 milliseconds
+
+
+The filesystem under path '/public/randomtextwriter/part-m-00000' is HEALTHY
+
+default port will be 4040
+
+hadoop = coresite.xml and hdfssite.xml these two will determine the hdfs property
+
+coresite.xml => gives the namenode address
+hdfssite.xml => have all the hdfs property
+
+all the spark property will be available in spark-defaults.conf file 
+
+spark-defaults.conf => all the spark related properties
+spark-env.sh => have memory and env property 
+
+if we want to get all the property used in spark then we have to use 
+
+sc.getConf().getAll().foreach(println)
+
+to start spark shell with some properties file like changing the port number or changing the executor we have to use --conf 
+
+spark-shell --master yarn --conf spark.ui.port=48874
+
+
+
+--- some Spark Properties 
+scala> sc.getConf.getAll.foreach(println)
+(spark.history.kerberos.keytab,none)
+(spark.eventLog.enabled,true)
+(spark.yarn.scheduler.heartbeat.interval-ms,5000)
+(spark.yarn.containerLauncherMaxThreads,25)
+(spark.driver.extraLibraryPath,/usr/hdp/current/hadoop-client/lib/native:/usr/hdp/current/hadoop-client/lib/native/Linux-amd64-64)
+(spark.executor.extraLibraryPath,/usr/hdp/current/hadoop-client/lib/native:/usr/hdp/current/hadoop-client/lib/native/Linux-amd64-64)
+(spark.yarn.preserve.staging.files,false)
+(spark.app.name,Spark shell)
+(spark.org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter.param.PROXY_URI_BASES,http://rm01.itversity.com:8088/proxy/application_1500459105861_5853)
+(spark.history.provider,org.apache.spark.deploy.history.FsHistoryProvider)
+(spark.org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter.param.PROXY_HOSTS,rm01.itversity.com)
+(spark.yarn.historyServer.address,rm01.itversity.com:18080)
+(spark.ui.port,48874)
+(spark.yarn.max.executor.failures,3)
+(spark.submit.deployMode,client)
+(spark.ui.filters,org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter)
+(spark.repl.class.uri,http://172.16.1.100:44691)
+(spark.history.ui.port,18080)
+(spark.history.fs.logDirectory,hdfs:///spark-history)
+(spark.driver.port,57600)
+(spark.master,yarn-client)
+(spark.app.id,application_1500459105861_5853)
+(spark.yarn.queue,default)
+(spark.executor.id,driver)
+(spark.externalBlockStore.folderName,spark-b37f8132-03ee-4e72-888f-6c19e2cacc2d)
+(spark.eventLog.dir,hdfs:///spark-history)
+(spark.yarn.driver.memoryOverhead,384)
+(spark.yarn.submit.file.replication,3)
+(spark.history.kerberos.principal,none)
+(spark.jars,)
+(spark.driver.appUIAddress,http://172.16.1.100:48874)
+(spark.driver.host,172.16.1.100)
+(spark.yarn.executor.memoryOverhead,384)
+
+
+============================================================================================================================================================================
+
+bin - binary => which has all the spark-shell pyspark spark-sql 
+sbin - scripts binary (which are executable scripts) => it has bunch of shell scripts 
+Exection Mode in Spark 
+
+local 
+standalone => prefer this than local 
+mesos
+yarn 
+
+
+To start the spark in standalone mode 
+		start the start-master.sh  will give an ip address where the application is running
+		start the slave with the same url of master     start-slav.sh 
+		start the spark    spark-shell --master spark://apple:pro.localhost:7077 
+
+	
+clone the data from the github to the local git clone https://github.com/EsakkiPillai/data.git
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+spark Context and Spark Conf 
+
+	when we open the spark shell it will automatically generates the spark Context as well sqlContext 
+	scala> sc
+	res3: org.apache.spark.SparkContext = org.apache.spark.SparkContext@7c2e88b9
+
+	scala> sqlContext
+	res4: org.apache.spark.sql.SQLContext = org.apache.spark.sql.hive.HiveContext@70efc3f9
+	
+lets say we have to change some spark configuration and launch the spark shell 
+
+	sc.stop
+	import org.apache.spark.{SparkContext, SparkConf}
+	val conf = new SparkConf().setAppName("Demo").setMaster("yarn-client")
+	val sc = new SparkContext(conf)
+	
+	if we check the properties it will have our new property and now it has the name demo 
+	
+	
+In Application we have to create the SparkContext and sparkConf as follows :- 	
+	
+	import org.apache.spark.{SparkContext, SparkConf}
+	val conf = new SparkConf().setAppName("Demo").setMaster("local").set("spark.ui.port","48874")   // changing the property name if we cahnge other than these property we have use set("key","value")
+	// change all the things we wish before creating the sc object 
+	val sc = new SparkContext(conf)
+	
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Reading the Files 
+
+		sc.textFile
+		sc.sequenceFile
+		sc.objectFile
+		sc.hadoopFile
+		sc.nweApiHadoopFile
+		
+if we want to access the HDFS files we have to use org.apache.hadoop.FileSystem._
+
+executor will be terminated once we closed the shell. 
+
+RDD Resiliented Distributed DataSet 
+---------------------------------
+
+its a distributed datasets 
+no of partitions in hdfs deoends on the hdfs block size. No of Tasks wil lbe depend on the no of partition 
+
+if we have 1 tb of data and we dont have enough memory we can deserialize the objects  in jVM across all the nodes 
+	
+val lines = sc.textFile("/public/randomtextwriter/part-m-00000")
+
+noow go to the gw01.itversity.com:48874 and check the executors tab and still the data is not loaded 
+its because of the lazy evaluation only we invoke the actions then it will start executing the transforamtions untill that it will be generating the DAG - Directed Accyclic Graph
+
+if i persist the data we can inform the performance  
+
+scala> lines.persist(org.apache.spark.storage.StorageLevel.MEMORY_ONLY)
+res11: lines.type = /public/randomtextwriter/part-m-00000 MapPartitionsRDD[1] at textFile at <console>:27
+
+
+lines.take(50)
+AS we see below the entire 233 mb of data had been read and loaded into the memory 
+
+
+Memory: 233.6 MB Used (1533.4 MB Total)
+Disk: 0.0 B Used
+Executor ID	Address	RDD Blocks	Storage Memory	Disk Used	Active Tasks	Failed Tasks	Complete Tasks	Total Tasks	Task Time	Input	Shuffle Read	Shuffle Write	Logs	Thread Dump
+1	wn05.itversity.com:51509	1	28.3 KB / 511.1 MB	0.0 B	0	0	9	9	18.5 s	411.4 MB	11.5 MB	13.5 MB	
+stdout
+stderr
+Thread Dump
+2	wn03.itversity.com:56831	3	233.6 MB / 511.1 MB	0.0 B	0	0	11	11	24.3 s	768.4 MB	6.0 MB	20.8 MB	
+stdout
+stderr
+Thread Dump
+driver	172.16.1.100:33001	2	30.3 KB / 511.1 MB	0.0 B	0	0	0	0	0 ms	0.0 B	0.0 B	0.0 B		Thread Dump
+
+====================================================================================================================================================================================================================
+Building Blocks of Spark 
+
+we can create the RDD from scala collection as well as shown below 
+
+scala> val c = (1 to 100)
+c: scala.collection.immutable.Range.Inclusive = Range(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100)
+
+scala> val rdd  = sc.parallelize(c)
+rdd: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[0] at parallelize at <console>:29
+
+rdd is creatred as above
+
+convert rdd to a collection 
+
+rdd.collect 
+	will convert the rdd in to a collection but never use this command when u have large volume of data sets it will choke the system 
+	if the rdd size is 10 gb then this entire 10gb data will be reside inside the driver which excutes the command 
+
+
+
+rdd  is 
+dataset =/> means data 
+distributed => distributed across the network 
+resilient => spark context is aware which task is processing which partition of rdd so using that information new task is generated 
+			 and same partition is assigned to the task by the spark that means as collection can be recovered as when it requires 
+			 so thats y its called as resillient 
+			 
+--
+rdd is inmemory datset it read  the data from the underlying filesystem , underlying filesystem haas the replication factor for Hdfs default replication is 3 
+
+if we run the spark in any cluster mode sc.textFilewill allow to read the data from the cluster not from the local 
+IF WE RAN IN LOCAL Mode it will accept all the local files 
+reading a file from the local system  in spark and make it as RDD(Distributed)
+	>>>read from local 
+	>>> convert it into RDD 
+	
+scala> val src = Source.fromFile("/data/cards/smalldeck.txt").getLines.toList
+src: List[String] = List(BLACK|SPADE|2, BLACK|SPADE|3, BLACK|SPADE|4, BLACK|SPADE|5, BLACK|SPADE|6, BLACK|SPADE|7, BLACK|SPADE|8, BLACK|SPADE|9, BLACK|SPADE|10, BLACK|SPADE|J, BLACK|SPADE|Q, BLACK|SPADE|K, BLACK|SPADE|A, BLACK|CLUB|2, BLACK|CLUB|3, BLACK|CLUB|4, BLACK|CLUB|5, BLACK|CLUB|6, BLACK|CLUB|7, BLACK|CLUB|8, BLACK|CLUB|9, BLACK|CLUB|10, BLACK|CLUB|J, BLACK|CLUB|Q, BLACK|CLUB|K, BLACK|CLUB|A, RED|DIAMOND|2, RED|DIAMOND|3, RED|DIAMOND|4, RED|DIAMOND|5, RED|DIAMOND|6, RED|DIAMOND|7, RED|DIAMOND|8, RED|DIAMOND|9, RED|DIAMOND|10, RED|DIAMOND|J, RED|DIAMOND|Q, RED|DIAMOND|K, RED|DIAMOND|A, RED|HEART|2, RED|HEART|3, RED|HEART|4, RED|HEART|5, RED|HEART|6, RED|HEART|7, RED|HEART|8, RED|HEART|9, RED|HEART|10, RED|HEART|J, RED|HEART|Q, RED|HEART|K, RED|HEART|A)
+
+scala> src.take(10)
+res13: List[String] = List(BLACK|SPADE|2, BLACK|SPADE|3, BLACK|SPADE|4, BLACK|SPADE|5, BLACK|SPADE|6, BLACK|SPADE|7, BLACK|SPADE|8, BLACK|SPADE|9, BLACK|SPADE|10, BLACK|SPADE|J)
+
+now we are going to create the Rdd 
+
+scala> val rdd = sc.parallelize(src)
+rdd: org.apache.spark.rdd.RDD[String] = ParallelCollectionRDD[11] at parallelize at <console>:30
+
+
+
+scala> rdd.take(10)
+res17: Array[String] = Array(BLACK|SPADE|2, BLACK|SPADE|3, BLACK|SPADE|4, BLACK|SPADE|5, BLACK|SPADE|6, BLACK|SPADE|7, BLACK|SPADE|8, BLACK|SPADE|9, BLACK|SPADE|10, BLACK|SPADE|J)
+
+
+if we want to read the file from hdfs s3 we have to use the system as below  
+-------------------------------------------------------------------------------
+ val src = sc.textFile("hdfs://nn01.itversity.com:8020/public/retail_db/orders")
+ src: org.apache.spark.rdd.RDD[String] = hdfs://nn01.itversity.com:8020/public/retail_db/orders MapPartitionsRDD[1] at textFile at <consol                            e>:27
+
+ src is an rdd and it will be distributed across the cluster in the Memory ( NO FileSystem ) 
+ 
+ val src_ten = src.take(10)
+	src_ten is an Array / Collection which is also stored in the memory of the machine in which driver is running 
+	
+ src.foreach(println)
+		this line is STDOUT its a console which prints the collection 
+ src.saveAstextFile("path")
+		it stores the rdd into the Hdfs filesystem 
+============================================================================================================================================================================================================================================================================================================
+
+DAG 
+
+a spark application has multiple jobs. whenever we trigger a action it will evolve into a job 
+
+job are grouped into stages , each stages have tasks associated with it, 
+a job ends with an action mostly previewing the file or saving the file  
+
+lazy evaluation ==> as the name suggests variable wont get executed until an action was triggered 
+
+scala> val a ={
+     | Thread.sleep(10000)
+     | 100
+     | }
+a: Int = 100
+
+the above command will wait for 10sec and 100 will be assigned to the val a 
+
+scala> lazy val a = {
+     | Thread.sleep(10000)
+     | 152
+     | }
+a: Int = <lazy>
+
+the above one will be executed immediately and have a lazy as shown 
+when we run a for the first time only the action is triggered the "a" and it wait for 10 sec and after that it assigns the variables 
+scala> val b = a
+b: Int = 152
+
+
+IN SPARK ALL THE TRANSFORMATIONS ARE LAZY 
+untill actions are not performed spark will not execute the program , instead it will build something called DAG (Directed Accyclic Graph)
+once the action is called the application will run as per he DAG 
+
+================================================================================================================================================
+val orders = sc.textFile("")
+
+orders.foreach(println)
+    which gives nothing since we iterate over an RDD ,since rdd will be executed in the worker nodes wich has the executor ,so if we print it wont work
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+take	
+collect
+first
+reduce =>
+
+get the smallest orderid from orders 
+
+scala> val orders = sc.textFile("/public/retail_db/orders")
+scala> orders.first
+res0: String = 1,2013-07-25 00:00:00.0,11599,CLOSED
+
+get the max 
+scala> val orderid_min = orders.map(rec=>rec.split(",")(2).toInt).reduce(_ max _)
+Another Solution
+scala> val order_min = orders.reduce ((agg,ele) => {
+     | if(agg.split(",")(2).toInt < ele.split(",")(2).toInt) agg else ele
+     | } )
+
+	 
+order_min: String = 22945,2013-12-13 00:00:00.0,1,COMPLETE
+
+----------------------
+top => sort the rdd in natural order and give the collection
+
+def top(num: Int)(implicit ord: scala.math.Ordering[T]): Array[T]
+
+orders.top(4)
+res2: Array[String] = Array(9999,2013-09-25 00:00:00.0,1185,CLOSED, 9998,2013-09-25 00:00:00.0,9419,PENDING, 9997,2013-09-25 00:00:00.0,3471,PENDING_PAYMENT, 9996,2013-09-25 00:00:00.0,11839,PENDING)
+
+--------------------------------
+takeOrdered we can sort the data collection using the customlogic 
+
+def takeOrdered(num: Int)(implicit ord: scala.math.Ordering[T]): Array[T]
+
+
+scala> orders.takeOrdered(2)(Ordering[Int].reverse.on(x => x.split(",")(2).toInt))
+res3: Array[String] = Array(41643,2014-04-08 00:00:00.0,12435,PENDING, 61629,2013-12-21 00:00:00.0,12435,CANCELED)
+
+reverse we are going to sort the collection in reverse
+on we will be giving the logic 
+
+we are sorting te data based on orderid 
+
+---------------------------------------------------------------------------------------
+Row Level Trasformation
+
+mostly used in 
+	data cleansing  => we remove the special record for each and every record   		map 
+	standardisation  => we need to standardise the fiels like phone number				
+	Discarding or Filtering 															filter		
+	unpivoting the data => 																flatmap
+
+
+
+
+Map
+----
+scala> val maprdd = orders.map(rec => ( rec.split(",")(1), 1) )
+maprdd: org.apache.spark.rdd.RDD[(String, Int)] = MapPartitionsRDD[30] at map at <console>:29
+
+Flat map 
+----------
+scala>  val words = Array("Hi Dude " ,"How are You ?","How is ur  -?","How was your ex")
+words: Array[String] = Array("Hi Dude ", How are You ?, How is ur  -?, How was your ex)
+
+scala> words.flatMap( rec => rec.split(" "))
+res31: Array[String] = Array(Hi, Dude, How, are, You, ?, How, is, ur, "", -?, How, was, your, ex)
+                                                    ^
+
+scala> words.flatMap( rec => rec.split(" ")).map( x => (x,1))
+res32: Array[(String, Int)] = Array((Hi,1), (Dude,1), (How,1), (are,1), (You,1), (?,1), (How,1), (is,1), (ur,1), ("",1), (-?,1), (How,1), (was,1), (your,1), (ex,1))
+
+=======================================================================================================================================================================================
+
+Shuffling and Sorting 
+
+group the data by svit 
+
+colour 
+svit
+pip
+
+
+Aggregations in Spark 
+	reduceByKey ===========>   combiner and reducer logic are different think avg of avg wont give same results 
+	aggregateByKey =========>  combiner logic and reducer logic are same think like sum of sum gives same results 
+	groupByKey   =========>   basically it shouldn't be used for aggregation 
+
+groupByKey generates Tuple   by using this groupby key wont be available in the iterable if we look at the data 
+groupByKry wants a (key,value)  pair always it took the first value in the tuple as key 
+if we need multiple key ((k1,k2),v1)
+
+reduceByKey input side value and output side value should be same  
+Combiner logic and the reducer logic should be same 
+
+geting the rvenue for each order id 
+
+scala> val orderitems = sc.textFile("E:\\DataLakes\\data\\retail_db\\order_items\\part-00000")
+orderitems: org.apache.spark.rdd.RDD[String] = E:\DataLakes\data\retail_db\order_items\part-00000 MapPartitionsRDD[4] at textFile at <console>:27
+
+scala> orderitems.first
+res3: String = 1,1,957,1,299.98,299.98
+
+scala> val mapper = orderitems.map( rec => (rec.split(",")(1).toInt , rec.split(",")(4).toFloat ))
+mapper: org.apache.spark.rdd.RDD[(Int, Float)] = MapPartitionsRDD[5] at map at <console>:29
+
+scala> mapper.take(10)
+res4: Array[(Int, Float)] = Array((1,299.98), (2,199.99), (2,250.0), (2,129.99), (4,49.98), (4,299.95), (4,150.0), (4,199.92), (5,299.98), (5,299.95))
+
+scala> val grp = mapper.groupByKey
+grp: org.apache.spark.rdd.RDD[(Int, Iterable[Float])] = ShuffledRDD[6] at groupByKey at <console>:31
+
+
+
+scala> grp.take(10)
+
+res8: Array[(Int, Iterable[Float])] = 
+	Array((41234,CompactBuffer(109.94)), (65722,CompactBuffer(119.98, 400.0, 399.98, 199.95, 199.98)), (28730,CompactBuffer(299.95, 50.0)), (68522,CompactBuffer(329.99)), (23776,CompactBuffer(199.99, 129.99)), (32676,CompactBuffer(59.99, 159.96, 299.97, 199.99)), (53926,CompactBuffer(119.98, 99.99)), (4926,CompactBuffer(199.92, 199.99, 239.96, 299.98)), (38926,CompactBuffer(499.95, 250.0, 299.95)), (29270,CompactBuffer(299.95, 119.98, 399.98, 159.96, 399.98)))
+scala> val res = grp.map( rec => ( rec._1 ,rec._2.sum) )
+res: org.apache.spark.rdd.RDD[(Int, Float)] = MapPartitionsRDD[7] at map at <console>:33
+
+scala> res.take(10).foreach(println)
+(41234,109.94)
+(65722,1319.8899)
+(28730,349.95)
+(68522,329.99)
+(23776,329.98)
+(32676,719.91003)
+(53926,219.97)
+(4926,939.85)
+(38926,1049.9)
+(29270,1379.8501)
+
+
+scala> val orderitems = sc.textFile("E:\\DataLakes\\data\\retail_db\\order_items\\part-00000")
+orderitems: org.apache.spark.rdd.RDD[String] = E:\DataLakes\data\retail_db\order_items\part-00000 MapPartitionsRDD[9] at textFile at <console>:27
+
+scala> val mapper = orderitems.map( rec => (rec.split(",")(1).toInt , (rec.split(",")(4).toFloat, rec.split(",")(3).toInt) ))
+mapper: org.apache.spark.rdd.RDD[(Int, (Float, Int))] = MapPartitionsRDD[10] at map at <console>:29
+
+scala> mapper.reduceByKey( (tot,ele)=> (tot._1+ele._1 , tot._2 +ele._2)).take(10).foreach(println)
+(41234,(109.94,2))
+(65722,(1319.8899,15))
+(28730,(349.95,6))
+(68522,(329.99,1))
+(23776,(329.98,2))
+(32676,(719.91003,9))
+(53926,(219.97,3))
+(4926,(939.85,10))
+(38926,(1049.9,15))
+(29270,(1379.8501,13))
+
+
+Why we are having this hadoop rdd 
+scala> mapper.toDebugString
+res5: String =
+(2) MapPartitionsRDD[5] at map at <console>:29 []
+ |  E:\DataLakes\data\retail_db\order_items\part-00000 MapPartitionsRDD[4] at textFile at <console>:27 []
+ |  E:\DataLakes\data\retail_db\order_items\part-00000 HadoopRDD[3] at textFile at <console>:27 []
+ 
+
+
+
+
+scala> val path = "/public/retail_db"
+path: String = /public/retail_db
+
+scala> val order_items = sc.textFile( path + "/order_items")
+
+order_items: org.apache.spark.rdd.RDD[String] = /public/retail_db/order_items MapPartitionsRDD[6] at textFile at <console>:29
+
+scala> val order_items_mapper = order_items.map( rec => ( rec.split(",")(1).toInt , rec.split(",")(4).toFloat) )
+order_items_mapper: org.apache.spark.rdd.RDD[(Int, Float)] = MapPartitionsRDD[7] at map at <console>:31
+
+scala> order_items_mapper.reduceByKey ((tot, ele) => tot+ele)
+17/08/07 10:14:51 INFO FileInputFormat: Total input paths to process : 1
+res1: org.apache.spark.rdd.RDD[(Int, Float)] = ShuffledRDD[8] at reduceByKey at <console>:34
+
+scala> val res = order_items_mapper.reduceByKey ((tot, ele) => tot+ele)
+res: org.apache.spark.rdd.RDD[(Int, Float)] = ShuffledRDD[9] at reduceByKey at <console>:33
+
+scala> res.take(10).foreach(println)
+
+(41234,109.94)
+(65722,1319.8899)
+(28730,349.95)
+(68522,329.99)
+(23776,329.98)
+(32676,719.91003)
+(53926,219.97)
+(4926,939.85)
+(38926,1049.9)
+(29270,1379.8501)
+
+
+
+AggregateByKey 
+--------------
+scala> order_items_mapper
+res6: org.apache.spark.rdd.RDD[(Int, Float)] = MapPartitionsRDD[7] at map at <console>:31
+
+scala> val aggbk = order_items_mapper.aggregateByKey((0.0,0))(
+     | (tot , ele ) => ( tot._1 + ele , tot._2 + 1) ,
+     | (total , inter) => ( total._1 + inter._1 , total._2 + inter._2)
+     | )
+aggbk: org.apache.spark.rdd.RDD[(Int, (Double, Int))] = ShuffledRDD[10] at aggregateByKey at <console>:33
+
+
+
+
+reduceByKey	aggregateByKey	groupByKey
+Uses Combiner	Uses Combiner	Does not use combiner
+Take one parameter as function – for seqOp and combOp	Take 2 parameters as functions – one for seqOp and other for combOp	No parameters as functions. Generally followed by map or flatMap
+Implicit Combiner	Explicit Combiner	No combiner
+seqOp or combiner logic are same as combOp or final reduce logic	seqOp or combiner logic are different from combOp or final reduce logic	No combiner
+Input and output value type need to be same	Input and output value type can be different	No parameters
+Performance is high for aggregations	Performance is high for aggregations	Relatively slow for aggregations
+Only aggregations	Only aggregations	Any by key transformation – aggregation, sorting, ranking etc.
+eg: sum, min, max etc	eg: average	eg: any aggregation is possible, but not preferred for performance reasons
+
+
+=================================================================================================================================================================================================================
+
+Joining the Data Set 
+----------------------
+
+Joins 
+
+	join(otherDataset,num[task]) =>  when its called on the dataset of (k,v) and (k,w) it returns ( k ,(v,w)) with all pairs of element for each key 
+	
+	outer joins are supported using leftouter join and rightOuterJoin and FullOuter Join 
+
+	order = > (order_id , order_date)    order_items => (order_item_order_id , order_subtotal )
+	
+sc.setLogLevel("WARN")
+val path ="/public/retail_db"
+val order = sc.textFile( path + "/orders").map( rec => (rec.split(",")(0).toInt , rec.split(",")(1) ) )
+val order_items = sc.textFile( path + "/order_items").map ( rec => (rec.split(",")(1).toInt , rec.split(",")(4).toFloat) )
+val ordersjoin = order.join(order_items)
+		ordersjoin: org.apache.spark.rdd.RDD[(Int, (String, Float))] = MapPartitionsRDD[12] at join at <console>:33
+	>>ordersjoin.first
+			res4: (Int, (String, Float)) = (41234,(2014-04-04 00:00:00.0,109.94))
+val revperorder = ordersjoin.map( rec => (rec._1 , rec._2._2))
+revperorder.reduceByKey ((tot,ele) => tot+ele).take(10).foreach(println)
+
+left outer join 
+----------------
+we are going to get the order_id which is available in orders but not  in order_items 
+
+No of records in both orders and order_items 
+
+
+scala> order.count
+res21: Long = 68883
+
+scala> order_items.count
+res22: Long = 172198
+
+val path ="/public/retail_db"
+val orders = sc.textFile(path + "/orders").map(rec => (rec.split(",")(0).toInt, rec))
+val orderItems = sc.textFile(path + "/order_items").map(rec => (rec.split(",")(1).toInt, rec))
+normal join 
+val ordersJoin = orders.join(orderItems)
+ordersJoin.take(10).foreach(println)
+	(41234,(41234,2014-04-04 00:00:00.0,3182,PENDING_PAYMENT,102921,41234,249,2,109.94,54.97))
+	(65722,(65722,2014-05-23 00:00:00.0,4077,COMPLETE,164249,65722,365,2,119.98,59.99))
+
+First 4 filds are from orders and last 6 fields are from orderItems	
+	
+	
+outer join 
+
+superset.leftOuterJoin( subset)
+val louter = orders.leftOuterJoin(order_items)
+louter.count
+res27: Long = 183650
+
+
+louter.take(100).forach(println)
+
+		(12420,(12420,2013-10-09 00:00:00.0,449,PENDING,None))
+		(24688,(24688,2013-12-25 00:00:00.0,12022,COMPLETE,Some(39.99)))
+		(24688,(24688,2013-12-25 00:00:00.0,12022,COMPLETE,Some(399.98)))
+		(24688,(24688,2013-12-25 00:00:00.0,12022,COMPLETE,Some(299.98)))
+
+
+we are interested in ecords which doesnt have any record in order_items but available in orders 
+
+ louter.filter( r => r._2._2 == None).first
+res36: (Int, (String, Option[Float])) = (5354,(5354,2013-08-26 00:00:00.0,7616,PENDING_PAYMENT,None))
+
+
+if we want to right outer join for the above dataset 
+
+val router = orders.rightOuterJoin(order_items)
+val fouter = orders.fullOuterJoin(order_items)
+
+
+cartesian  Product 
+-----------
+scala> val a = sc.parallelize(List("e","s","a","k","k","i"))
+a: org.apache.spark.rdd.RDD[String] = ParallelCollectionRDD[9] at parallelize at <console>:27
+
+scala> val b = sc.parallelize(List("E","S","A","K","K","I"))
+b: org.apache.spark.rdd.RDD[String] = ParallelCollectionRDD[10] at parallelize at <console>:27
+
+scala> a.cartesian(b).collect.foreach(println)
+
+Distance between multiple cities 
+coGroup 
+----------
+
+(k,v) (k,w) ==> ( k ,(iterable[v] ,Iterable[w]) )
+
+===========================================================================================================================================================================
+
+SET Operation  both the dataset should be same 
+
+union 
+intersection
+
+distinct order_item_product_id is sold in the given month 
+==================================================================
+Sorting and Ranking 
+
+
+		sortByKey([ascending],[numtask])  when called on a dataset (k,v) where implements ordered  returns a dataset of (k,v) 
+										  pairs sorted by keys in ascending / descending order as specified in the boolean ascending argument 
+		
+		ByKey operation results in shuffle operation 
+	
+val path ="/public/retail_db"
+val orders = sc.textFile(path + "/orders").map( rec => ( rec.split(",")(2).toInt , rec ) )
+orders.sortByKey().first
+ orders.sortByKey().filter ( rec => rec._1 == 11599).collect.foreach(println)
+(11599,1,2013-07-25 00:00:00.0,11599,CLOSED)
+(11599,11397,2013-10-03 00:00:00.0,11599,COMPLETE)
+(11599,23908,2013-12-20 00:00:00.0,11599,COMPLETE)
+(11599,53545,2014-06-27 00:00:00.0,11599,PENDING)
+(11599,59911,2013-10-17 00:00:00.0,11599,PROCESSING)
+
+
+if i want to sort the results by both ordercustomer id and order status 
+ al orders = sc.textFile(path + "/orders").map( rec => ( (rec.split(",")(2).toInt , rec.split(",")(3)) ,rec ) )
+orders.sortByKey().map ( r => r._2 ).take(100).foreach(println)
+
+
+descending order orders.sortByKey(false) 
+
+
+
+
+=======================================================================================================================================================
+
+group by Key
+
+	using products let us compare top N Products ( dense ranking)
+	if we pass a value to get top N priced products we are supposed to get all the records which fall under top N priced products
+
+Top 5 Products Within Each Category 	
+val productByCategory = products.filter( products => products.split(",")(4) != "").map (rec => (rec.split(",")(1).toInt,rec)).groupByKey
+def topNProducts(rec :(Int,Iterable[String])):Iterable[String] ={
+     | rec._2.toList.sortBy( k => -k.split(",")(4).toFloat ).take(5)
+     | }
+topNProducts: (rec: (Int, Iterable[String]))Iterable[String]
+
+productByCategory.flatMap ( rec => topNProducts(rec) ).take(5).foreach(println)
+743,34,Ogio Race Golf Shoes,,169.99,http://images.acmesports.sports/Ogio+Race+Golf+Shoes
+744,34,Ogio Race Golf Shoes,,169.99,http://images.acmesports.sports/Ogio+Race+Golf+Shoes
+745,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes
+746,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes
+747,34,Ogio City Spiked Golf Shoes,,149.99,http://images.acmesports.sports/Ogio+City+Spiked+Golf+Shoes
+
+
+=======================================================================================================================================================================
+Develop A Word Count program 
+
+package com.Spark.fileOperations
+
+import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.spark.{SparkConf, SparkContext}
+
+import scala.tools.ant.Pack200Task
+
+/**
+  * Created by etpil on 8/15/2017.
+  * Simple WordCount Application
+  */
+object wordCountApplication{
+
+  def main(args: Array[String]): Unit = {
+
+  val props:Config = ConfigFactory.load()
+   val conf = new SparkConf().setAppName("Simple-WordCount-Application").setMaster(props.getConfig("dev").getString("executionMode")).set("spark.ui.port","45621")        /*setMaster(local[*]) ) */
+    val sc = new SparkContext(conf)
+    sc.setLogLevel("WARN")
+  val fs = FileSystem.get(sc.hadoopConfiguration)
+  val inputFile = props.getConfig("dev_wordCount").getString("inputPath")              //args(0)   // "E:\\DataLakes\\WordCount\\rr.txt"
+  val outputFile = props.getConfig("dev_wordCount").getString("outputPath")             //args(1)  //"E:\\DataLakes\\WordCount\\WordCount_Output"
+
+  if(!fs.exists(new Path(inputFile))) {
+    println("Input File is Not Available. Please  Check the Input Path")
+  }
+
+  if(fs.exists(new Path(outputFile))){
+    println("OutPut Directory Already Exists... We are Deleting the Directory")
+    fs.delete(new Path(outputFile),true)
+    println("Output Directory was deleted Sucessfully")
+
+  }
+
+  val srcFile = sc.textFile(inputFile)
+  val words = srcFile.flatMap(rec => rec.split(" ").map(rec => (rec,1)))
+  val results = words.reduceByKey((tot, ele) => tot+ele)
+  results.collect().foreach(println)
+
+  println("Saving the results to the Hdfs/local File....")
+  results.saveAsTextFile(outputFile)
+  println("File saved to the Local....")
+
+
+  sc.stop()
+  println("we stooped the sc"+ sc.isStopped)
+
+
+  }
+}
+
+if we want to run the same pogra in the local  run 
+
+>> sbt console
+>> import com.Spark.fileOperations._
+>> wordCountApplication.main(Array("dev","dev_wordCount")) 
+=========================================================================================================================================
+
+Run the >> sbt package it will creat a jar file in the target directory under the scala_2.10.6 folder 
+use mobixterm and ship the jar to the cluster 
+>> jar tvf <jarFileName> which will list all the class files in the jar 
+
+
+in lab we have only spark-core related jar files if we want other files we have to mention it 
+
+--jar => of we want to specify  a single the jar name and path 
+--driver-class-path ==> all the jars will be placed and we have to use this path 
+
+
+spark-submit --class com.Spark.fileOperations.wordCountApplication --master yarn --conf spark.ui.port=54312 learnscala_2.10-1.0.jar prod prod_wordCount
+
+
+By Default we will be having 2 executors so we 2 part files will be created 
+
+executors are JVM which will run the tasks 
+
+Executor ID	Address	RDD Blocks	Storage Memory	Disk Used	Active Tasks	Failed Tasks	Complete Tasks	Total Tasks	Task Time	Input	Shuffle Read	Shuffle Write	Logs
+1	wn03.itversity.com:37850	0	0.0 B / 511.1 MB	0.0 B	0	0	6	6	2.1 s	41.5 KB	0.0 B	20.6 KB	
+stdout
+stderr
+2	wn05.itversity.com:45607	0	0.0 B / 511.1 MB	0.0 B	0	0	0	0	0 ms	0.0 B	0.0 B	0.0 B	
+stdout
+stderr
+driver	172.16.1.100:35015	0	0.0 B / 511.1 MB	0.0 B	0	0	0	0	0 ms	0.0 B	0.0 B	0.0 B	
+
+----------------------------------------------------------------------
+
+9 tasks at each size 
+@ stage 0 ===> no of tasks is equal to no of Blocks 
+
+to find the blocks  hdfs fsck  /user/esakkipillai/August/data/rr.txt -files -blocks  
+
+to increase the executor 
+lets say we have 100 gb of data and it storesd in hdfs as of 800 blocks so we need 800 tasks to process it 
+we use lot of filters and we produce the intermediate results as of 1 gb 
+by default stage 1 also uses 800 tasks to process this intermediate results which is insufficient 
+
+
+ByKey Transformations takes a new Paramter called numTasks using that we can increase or decrease the tasks
+
+to increase the executors 
+
+--executor-memory  1000M / 2G  default is 1 GB 
+--num-executors    no of executors to be launched by default is 2 
+--executor-core    no of cores per executor  by default it will be one 
+
+
+spark-sumbit --num-executors 10 --executor-memory 4096M --executor-core 3
+
+ we can get the cluster configuration from the resource manager ui rm01.itversity.com 
+
+
+
+
+
+
+
+
+
+================================================================================================================================================================================================
+SQL INTERFACE 
+--------------
+switch to the database 
+create the table 
+insert the data 
+query the table 
+
+spark-sql --master yarn --conf spark.ui.port=54312
+	it will open the spark-sql shell as below 
+
+
+spark-sql>
+sparksql or hive is to explore , for developing we use scala spark 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+open the spark shel it will have sc and sqlContext are created 
+
+scala> sqlContext
+res1: org.apache.spark.sql.SQLContext = org.apache.spark.sql.hive.HiveContext@27002c5a
+
+
+scala> sqlContext.sql("select * from wlabsdg.order_count_by_date")
+res4: org.apache.spark.sql.DataFrame = [order_date: string, order_count: int]
+
+	if we check the output is of DataFrame not of RDD 
+
+scala> sqlContext.sql("select * from wlabsdg.order_count_by_date").show
+
+|          order_date|order_count|
++--------------------+-----------+
+|2013-07-25 00:00:...|        286|
+|2013-07-26 00:00:...|        538|
+|2013-07-27 00:00:...|        404|
+|2013-07-28 00:00:...|        374|
+|2013-07-29 00:00:...|        506|
+|2013-07-30 00:00:...|        454|
+|2013-07-31 00:00:...|        504|
+|2013-08-01 00:00:...|        492|
+|2013-08-02 00:00:...|        448|
+|2013-08-03 00:00:...|        366|
+|2013-08-04 00:00:...|        374|
+|2013-08-05 00:00:...|        306|
+|2013-08-06 00:00:...|        516|
+|2013-08-07 00:00:...|        406|
+|2013-08-08 00:00:...|        308|
+|2013-08-09 00:00:...|        250|
+|2013-08-10 00:00:...|        540|
+
+
+scala> sqlContext.sql("select current_date").show
++----------+
+|       _c0|
++----------+
+|2017-08-17|
++----------+
+scala> sqlContext.sql("select current_date as cdate").show+----------+
+|     cdate|
++----------+
+|2017-08-17|
++----------+
+
+if we want to override any hive configuration 
+by default when there is shuffling happens it will lanch 200 tasks to process the data , inorder to optimize the query we have to override  the configuration property 
+
+scala> sqlContext.getConf("spark.sql.shuffle.partitions")
+res3: String = 200
+
+to set this value 
+ scala> sqlContext.setConf("spark.sql.shuffle.partitions","5")
+ 
+ now it will use 5 tasks rather than 200 tasks 
+ 
+ to convert back into rdd use 
+ >>sqlContext.sql("select * from customers").rdd  
+	
+	
+Typical Transformation 
+	Filter the data   concentrate on subset of data 
+	Clenase the data  removing special character 
+	Data Standardization  example customer phone no in one format another application might store the same in different format so we have to standardize it
+	Aggregation           rev on daily basis , 
+	Sorting and Ranking    top performed ppl
+	Joining the dataset 
+	Eindowing Function  rank dense rank 
+
+Problem Statement:-
+---------------------
+
+Top 5 Products within each day by the rev generated by each product consider only complete and closed order 
+
+products 
+product_id product_category_id product_name product_description product_price product_image 
+
+orders
+order_id order_date order_customer_id order_status
+
+order_items 
+order_item_id order_item_order_id order_item_product_id order_item_quantity  order_item_subtotal order_item_product_price 
+
+getting orderstatus 
+
+select o.order_date , o.orders_status from orders o where o.order_status in ('COMPLETE' , 'CLOSED') 
+select o.order_date , o.orders_status from orders o where o.order_date like '201%-%-01%' and o.order_status in ('COMPLETE' , 'CLOSED') 
+select o.order_date , o.orders_status from orders o where ( o.order_date like '2013-08-01%'  or o.order_date like '2013-09-01%' )and o.order_status in ('COMPLETE' , 'CLOSED') 
+
+select o.order_date , oi.order_item_subtotal from orders o, order_items oi  
+where o.order_id = oi.order_item_id and o.order_status in ('COMPLETE' , 'CLOSED')
+
+Ascii Join 
+
+select o.order_date , oi.order_item_subtotal , oi.order_item_product_id
+from orders o join order_items oi  
+on o.order_id = oi.order_item_id 
+where o.order_status in ('COMPLETE' , 'CLOSED')
+--150816
+
+select o.order_date , p.product_name , oi.order_item_subtotal 
+from orders o join order_items oi  
+on o.order_id = oi.order_item_id 
+join products p  on oi.order_item_product_id = p.product_id
+where o.order_status in ('COMPLETE' , 'CLOSED')
+
+
+select o.order_date , p.product_name , sum (oi.order_item_subtotal ) as rev 
+from orders o join order_items oi  
+on o.order_id = oi.order_item_id 
+join products p  on oi.order_item_product_id = p.product_id
+where o.order_status in ('COMPLETE' , 'CLOSED')
+group by o.order_date , p.product_name
+
+select o.order_date , p.product_name , sum (oi.order_item_subtotal ) as rev 
+from orders o join order_items oi  
+on o.order_id = oi.order_item_id 
+join products p  on oi.order_item_product_id = p.product_id
+where o.order_status in ('COMPLETE' , 'CLOSED')
+group by o.order_date , p.product_name
+order by o.order_date ,rev desc 
+
+select o.order_date , p.product_name , sum (oi.order_item_subtotal ) as rev 
+from orders o join order_items oi  
+on o.order_id = oi.order_item_id 
+join products p  on oi.order_item_product_id = p.product_id
+where o.order_status in ('COMPLETE' , 'CLOSED')
+group by o.order_date , p.product_name
+having  sum (oi.order_item_subtotal ) > 1000
+order by o.order_date ,rev desc 
+
+<analytical function > over (partition by <field> order by <field> )
+
+select * from (select o.order_id, o.order_date , p.product_name , p.product_category_id , p.product_price , oi.order_item_subtotal , 
+sum (oi.order_item_subtotal ) over (partition by o.order_date , p.product_name )as rev 
+from orders o join order_items oi  
+on o.order_id = oi.order_item_id 
+join products p  on oi.order_item_product_id = p.product_id
+where o.order_status in ('COMPLETE' , 'CLOSED')
+order by o.order_date ,rev desc )q limit 100
+
+67406   2014-07-24 00:00:00.0   Glove It Women's Mod Oval 3-Zip Carry All Gol   41      21.99   65.97   131.94000244140625
+67406   2014-07-24 00:00:00.0   Glove It Women's Mod Oval 3-Zip Carry All Gol   41      21.99   65.97   131.94000244140625
+
+
+select * from orders where order_id = 67406
+hive (wlabsdg)> select * from orders where order_id = 67406
+              > ;
+OK
+67406   2014-07-24 00:00:00.0   476     COMPLETE
+67406   2014-07-24 00:00:00.0   476     COMPLETE
+
+select * from (
+select order_date , product_name ,product_price , product_category_id , rev , dense_rank() over(partition by order_date order by rev desc) rnk from (
+select distinct * from (
+select o.order_id, o.order_date , p.product_name , p.product_category_id , p.product_price , oi.order_item_subtotal , 
+sum (oi.order_item_subtotal ) over (partition by o.order_date , p.product_name )as rev 
+from orders o join order_items oi  
+on o.order_id = oi.order_item_id 
+join products p  on oi.order_item_product_id = p.product_id
+where o.order_status in ('COMPLETE' , 'CLOSED')
+)q
+)q2 
+)q3 where rnk <= 5
+order by order_date , rev 
+
+
+
+fileFormats 
+------------
+
+
+
+BroadCast Variables 
+--------------------
+Get Revenue Per Product for a Given Month 
+
+rev - order_items 
+date - orders 
+Product details - product  we assume products is not available in the HDFS so we load the data from local and join with the available data 
+
+
+val orders = sc.textFile("/public/retail_db/orders")
+val currentMonth = orders.filter( rec => rec.split(",")(1).contains("2013-07")).map(x => ( x.split(",")(0).toInt ,1) )
+
+val order_items = sc.textFile("/public/retail_db/order_items")
+val rev= order_items.map(order_items => {
+val oi = order_items.split(",")
+(oi(1).toInt ,(oi(2).toInt,oi(4).toFloat))
+}).join(currentMonth).map( rec => rec._2._1).reduceByKey(_ +_)
+
+
+scala> rev.first
+res3: (Int, (Int, Float)) = (1,(957,299.98))
+
+scala> currentMonth.first
+res4: (Int, Int) = (1,1)
+
+Joined 
+scala> rev.first
+res7: (Int, ((Int, Float), Int)) = (266,((1073,199.99),1))
+
+
+vobject RevenuePerProductForMonth {
+
+  def main(args: Array[String]): Unit = {
+
+    val inputPath = args(1)
+    val outPutPath = args(2)
+    val localInputPath = args(3)
+    val month = args(4)
+
+    val props = ConfigFactory.load()
+
+    val env = props.getConfig(args(0))
+
+    val sc = new SparkContext( new SparkConf().setAppName("Revenue Per Product Per Month ").setMaster(env.getString("executionMode")))
+    val fs = FileSystem.get(sc.hadoopConfiguration)
+    if(!fs.exists(new Path(inputPath))) {
+        println("InPut FIles are Not Available")
+    }else{
+      if(fs.exists(new Path(outPutPath))){
+          fs.delete(new Path(outPutPath),true)
+      }
+    }
+
+    val orders = inputPath+"/orders"
+    val currentMonth = sc.textFile(orders).filter( rec => rec.split(",")(1).contains(month)).map(x => ( x.split(",")(0).toInt ,1) )
+
+
+    val order_items = inputPath+"/order_items"
+    val revenueByProduct = sc.textFile(order_items).map(order_items => {
+
+                                                                        val oi = order_items.split(",")
+                                                                        (oi(1).toInt ,(oi(2).toInt,oi(4).toFloat))
+                                                                        }).join(currentMonth).map( rec => rec._2._1).reduceByKey(_ +_)
+
+
+
+    val products = Source.fromFile(localInputPath  + "/products/part-00000").getLines()
+    sc.parallelize(products.toList).
+      map(product => (product.split(",")(0).toInt, product.split(",")(2))).
+      join(revenueByProduct).
+      map(rec => rec._2.productIterator.mkString("\t")).
+      saveAsTextFile(outPutPath)
+
+  }
+}
+
+
+
+
+
+if we want to  join a very huge table with the small table we can go for the map side join we can do this using the broadcast variables 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+Parquet Files
+
+its a Columunar File Format
+
+Efficient Storage
+Efficient data io and CPU Utilization
+	
+	
+	
+=====================================================================================================================================
+Reading and Writing to Parquet File
+case class Person(name: String, age: Int, sex:String)
+val data = Seq(Person("Jack", 25,"M"), Person("Jill", 25,"F"), Person("Jess", 24,"F"))
+val df = data.toDF()
+
+import org.apache.spark.sql.SaveMode
+df.select("name", "age", "sex").write.mode(SaveMode.Append).format("parquet").save("/tmp/person")
+
+
+To partition the data based on some Columns
+  
+df.select("name", "age", "sex").write.partitionBy("sex").mode(SaveMode.Append).format("parquet").save("/user/esakkipillai/person_partitioned/")
+
+val sqlContext = new org.apache.spark.sql.SQLContext(sc)
+
+val dfPerson = sqlContext.read.parquet("/tmp/person")
+
+scala> dfPerson.collect.foreach(println)
+[Jack,25,M]
+[Jill,25,F]
+[Jess,24,F]
+
+	
+scala> df.printSchema
+root
+ |-- name: string (nullable = true)
+ |-- age: integer (nullable = false)
+ |-- sex: string (nullable = true)
+
+
+scala> df.show
++----+---+---+
+|name|age|sex|
++----+---+---+
+|Jack| 25|  M|
+|Jill| 25|  F|
+|Jess| 24|  F|
++----+---+---+
+
+=============================================================================================================================================
+
+CSV File as the data Source 
+
+we have to add the jar file while starting the spark shell AS BELOW we add csv as well as avro jar to the spark session
+
+		spark-shell --master yarn --packages com.databricks:spark-avro_2.10:2.0.1,com.databricks:spark-csv_2.10:1.5.0 --conf spark.conf.port=45312
+	
+	val babynames = sqlContext.read.format("com.databricks.spark.csv").option("header","true").option("inferschema","true").load("/user/esakkipillai/datalake/baby_names.csv")
+	res1: org.apache.spark.sql.DataFrame = [Year: int, First Name: string, County: string, Sex: string, Count: int]
+
+	scala> babynames.printSchema
+root
+ |-- Year: integer (nullable = true)
+ |-- First Name: string (nullable = true)
+ |-- County: string (nullable = true)
+ |-- Sex: string (nullable = true)
+ |-- Count: integer (nullable = true)
+
+scala> babynames.registerTempTable("baby")
+
+once we Registered we can use the sql Query as well
+
+scala> sqlContext.sql("select distinct year from baby").show
+
+ val mostPopular = sqlContext.sql(" select distinct('First Name') ,sum(Count) as  cnt from baby group by 'First Name' order by cnt desc limit 10")
+
+ 
+
+====================================================================================
+YARN commands
+===================================================================
+usage: application
+ -appStates <States>             Works with -list to filter applications
+                                 based on input comma-separated list of
+                                 application states. The valid application
+                                 state can be one of the following:
+                                 ALL,NEW,NEW_SAVING,SUBMITTED,ACCEPTED,RUN
+                                 NING,FINISHED,FAILED,KILLED
+ -appTypes <Types>               Works with -list to filter applications
+                                 based on input comma-separated list of
+                                 application types.
+ -help                           Displays help for all commands.
+ -kill <Application ID>          Kills the application.
+ -list                           List applications. Supports optional use
+                                 of -appTypes to filter applications based
+                                 on application type, and -appStates to
+                                 filter applications based on application
+                                 state.
+ -movetoqueue <Application ID>   Moves the application to a different
+                                 queue.
+ -queue <Queue Name>             Works with the movetoqueue command to
+                                 specify which queue to move an
+                                 application to.
+ -status <Application ID>        Prints the status of the application.
+ 	
+	
+==========================================================================================================================================
+using spark to access the HDFS Fle System 
+
+import org.apache.hadoop.fs.{Path, FileSystem}
+val fs = FileSystem.get(sc.hadoopConfiguration)	
+now we can use the fs object to control the filesystem it has the methods like create delete exists etc 
+
+package com.Spark.fileOperations
+
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.Path
+import java.io.PrintWriter
+
+import org.apache.spark.{SparkConf, SparkContext}
+
+
+/**
+  * Created by etpillai on 8/14/2017.
+  * will be working on the FileSystem
+  */
+
+object fileop{
+
+  val sc = new SparkContext( new SparkConf().setAppName("File Operation").setMaster("local[*]"))
+  val fs = FileSystem.get(sc.hadoopConfiguration)
+
+    def fileCreation(filepath:String)={
+      fs.create(new Path(filepath))
+      println("New File\t"+ filepath +"\twas created Successfully")
+    }
+
+  def filedelete(filepath:String)={
+    val srcFile = new Path(filepath)
+    fs.delete(srcFile,true)
+    println("Files Deleted Successfully")
+  }
+   def fileexists(filepath:String , createNewFile:Boolean)={
+     val srcfile = new Path(filepath)
+     if(!fs.exists(srcfile)){
+       println("Files is not available in the path")
+       if(createNewFile) fileCreation(filepath)
+       else println(" As per Users suggestion we are not creating new files even though files are not There")
+     }else{
+       println("Files are available in the Path")
+     }
+  }
+  def main(args: Array[String]): Unit = {
+
+    filedelete("E:\\DataLakes\\Spark_Play\\sample.txt")
+    fileexists("E:\\DataLakes\\Spark_Play\\sample.txt",true)
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

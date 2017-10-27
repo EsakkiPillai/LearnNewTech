@@ -1,0 +1,53 @@
+when i use hdfs comands it display errors:
+
+ hadoop fs -mkdir /user/,,myfile,, or   "hadoop fs -put myfile.txt /user/,,/,,"  
+
+hadoop will display"Permission denied: user=root, access=WRITE, inode="/user":hdfs:supergroup:dr,,,"and so on,why?who can help me?
+
+ Hey,
+
+The /user/ directory is owned by "hdfs" with 755 permissions. As a result only hdfs can write to that directory. Unlike unix/linux, hdfs is the superuser and not root. So you would need to do this:
+
+sudo -u hdfs hadoop fs -mkdir /user/,,myfile,,
+sudo -u hdfs hadoop fs -put myfile.txt /user/,,/,,
+
+If you want to create a home directory for root so you can store files in his directory, do:
+
+sudo -u hdfs hadoop fs -mkdir /user/root
+sudo -u hdfs hadoop fs -chown root /user/root
+
+Then as root you can do "hadoop fs -put file /user/root/".
+
+Hope this helps.
+
+Chris 
+
+
+grant all privileges on root.* to ''@localhost ;
+
+sudo -u hdfs spark-submit --class com.cloudera.sparkwordcount.JavaWordCount --master local target/sparkwordcount-0.0.1-SNAPSHOT.jar /user/cloudera/data/inputfile.txt 2
+
+sudo -u hdfs sqoop import --connect jdbc:mysql://quickstart.cloudera:3306/retail_db --username retail_dba --password cloudera --table products --target-dir /esak/Sqoop/retail_dba1/ -m 5 
+
+
+List(blue black green blue black) List(blue black green blue black)
+
+
+hdfs://quickstart.cloudera:8020
+
+hcek the namenode address in coresite.xml 
+
+check the property for fs.defaultFS
+
+spark means inmemory so it read the data and store it in memory ? will it keep a replication in there ? 
+
+192.168.56.101
+
+
+hdfs://sandbox.hortonworks.com:8020
+
+1) when we run a job locally(Windows) in Spark , we can see a .part-00000.crc file .
+
+what the .crc file means ? is it always generated ?
+
+2) 

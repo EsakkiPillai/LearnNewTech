@@ -1,0 +1,104 @@
+utility Node -
+
+its a server were we have  hive  server oozie server etc 
+
+Gateway node Commuicate to the utility server to submit the  job
+
+oozie Client bunch of jar files installed on the server 
+
+Navigate to the cd /usr/hdp/2.5.0.0-1245/oozie/doc/
+ check the oozie-examples.tar.gz
+
+
+oozie mainly have the following  
+	job.properties
+	workflow.xml
+	
+<start>
+	<action>
+		
+		
+First Check 
+	oozie admin --oozie http://nm01.itersity.com:11000/oozie -status
+	oozie asdmin --oozie http://nm01.itversity.com:11000/oozie -version
+	
+job.properties
+
+namenode=hdfs://nn01.itversity.com:80020		## fs.defaultFs in core-site.xml
+jobTracker=rm01.itversity.com:8050				## yarn.resourcemanager address in yarn-site.xml
+queueName=default
+examplesRoot=oozie_example
+
+oozie.wf.pplication.path=${namenode}/user/${user.name}/${examplesRoot}/java-main
+
+move the java-mainn from local to hdfs 
+then run oozie job
+
+	oozie job -oozie http://nn01.itersity.com:11000/oozie -config <HDFS full path job.properties file > -run 
+it will produce a oozie id we can check the info 
+
+	oozie job -oozie  http://nn01.itersity.com:11000/oozie -info <OOZIE_ID>
+
+	
+	Oozie commands
+--------------
+Note: Replace oozie server and port, with your cluster-specific.
+
+1) Submit job:
+$  oozie job -oozie http://nn01.itversity.com:11000/oozie -config /home/esakkipillai/hadoop/oozie_demo/hive/job.properties -run
+job: 0000101-170330051735289-oozie-oozi-W
+
+
+2) Run job:
+$ oozie job -oozie http://cdh-dev01:11000/oozie -start 0000001-130712212133144-oozie-oozi-W
+
+3) Check the status:
+$  oozie job -oozie http://nn01.itversity.com:11000/oozie -info 0000101-170330051735289-oozie-oozi-W
+
+4) Suspend workflow:
+$ oozie job -oozie http://cdh-dev01:11000/oozie -suspend 0000001-130712212133144-oozie-oozi-W
+
+5) Resume workflow:
+$ oozie job -oozie http://cdh-dev01:11000/oozie -resume 0000001-130712212133144-oozie-oozi-W
+
+6) Re-run workflow:
+$ oozie job -oozie http://cdh-dev01:11000/oozie -config oozieProject/workflowHdfsAndEmailActions/job.properties -rerun 0000001-130712212133144-oozie-oozi-W
+
+7) Should you need to kill the job:
+$ oozie job -oozie http://cdh-dev01:11000/oozie -kill 0000001-130712212133144-oozie-oozi-W
+
+8) View server logs:
+oozie job -oozie http://nn01.itversity.com:11000/oozie -logs 0000101-170330051735289-oozie-oozi-W
+
+
+Logs are available at:
+/var/log/oozie on the Oozie server.
+
+
+
+
+oozie job -oozie http://nn01.itversity.com:11000/oozie-start -info 0000103-170330051735289-oozie-oozi-W
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

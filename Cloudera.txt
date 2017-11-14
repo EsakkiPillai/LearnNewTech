@@ -51,9 +51,3 @@ hdfs://sandbox.hortonworks.com:8020
 what the .crc file means ? is it always generated ?
 
 2) 
-
-===========================================================================================================================================================
-https://sreejithrpillai.wordpress.com/2017/02/19/log-analyzer-example-using-spark-and-scala/
-https://gist.github.com/fjlopez?page=3
-http://aperiodic.net/phil/scala/s-99/
-http://www.itversity.com/topic/implementing-the-application-using-scala/
